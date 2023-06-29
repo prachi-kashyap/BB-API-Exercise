@@ -1,3 +1,15 @@
+#########################################################################################
+# Title : Test class for test_guid_api.py
+# 
+# Author        
+# ***************
+# Prachi Kashyap
+#   
+# Purpose     : Test the functionalities covered in guid_api.py  
+# Environment : Venv (Dependencies in requirements.txt)
+# Usage       : coverage run -m unittest discover
+#########################################################################################
+
 import unittest
 import json
 import time
@@ -13,6 +25,7 @@ class TestGUIDHandler(tornado.testing.AsyncHTTPTestCase):
     def get_app(self):
         return Application()
 
+    # This function sets up test environment, creating test data in MongoDB and Redis.
     def setUp(self):
         super().setUp()
         self.db = motor.motor_tornado.MotorClient().test_db
@@ -33,6 +46,7 @@ class TestGUIDHandler(tornado.testing.AsyncHTTPTestCase):
         }
         self.io_loop.run_sync(lambda: self.redis.set(self.test_guid, json.dumps(serialized_document)))
 
+    # This function cleans up the test environment, removing test data.
     def tearDown(self):
         # Delete the test GUID from MongoDB
         self.io_loop.run_sync(lambda: self.db.guids.delete_one({"guid": self.test_guid}))
@@ -66,5 +80,3 @@ class TestGUIDHandler(tornado.testing.AsyncHTTPTestCase):
     async def test_delete(self):
         response = await self.http_client.fetch(self.get_url(f'/guid/{self.test_guid}'), method='DELETE')
         self.assertEqual(response.code, 200)
-    
-
