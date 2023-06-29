@@ -1,5 +1,19 @@
+#########################################################################################
+# Title : Implementation of RESTful Web API
+# 
+# Author        
+# ***************
+# Prachi Kashyap
+#   
+# Purpose     : RESTful web API that can be used to maintain a database of GUIDs (Globally Unique Identifier) and associated
+#               metadata. The API must expose commands to perform CRUD operations (Create, Read, Update, Delete).  
+# Environment : Venv (Dependencies in requirements.txt)
+# Usage       : python3 guid_api.py
+#########################################################################################
+
 import tornado.ioloop
 import tornado.web
+import tornado.gen
 import uuid
 import time
 import motor.motor_tornado
@@ -20,6 +34,20 @@ class Application(tornado.web.Application):
         self.redis = aioredis.from_url("redis://localhost")
 
 class GUIDHandler(tornado.web.RequestHandler):
+
+    # Asynchronous function to handle internal server errors
+    @tornado.gen.coroutine
+    def write_error(self, status_code, **kwargs):
+        if status_code == 500:
+            self.set_header('Content-Type', 'application/json')
+            self.finish(json.dumps({
+                'error': {
+                    'code': status_code,
+                    'message': 'Internal server error'
+                }
+            }))
+        else:
+            super(GUIDHandler, self).write_error(status_code, **kwargs)
 
     # Function to handle the GET request for retrieving metadata
     async def get(self, guid=None):
@@ -50,7 +78,7 @@ class GUIDHandler(tornado.web.RequestHandler):
             # Checks if a data with the specified GUID exists in the MongoDB database, 
             # and if it does not exist or is expired, it raises a 404 Not Found HTTP error.
             if not data or await self.check_expired(guid):
-                raise tornado.web.HTTPError(404, "GUID not found or expired")
+                raise tornado.web.HTTPError(404, "GUID expired or Not found")
 
             # Creates a dictionary named serialized_data with the values extracted from the MongoDB query result.
             serialized_data = {
@@ -117,7 +145,7 @@ class GUIDHandler(tornado.web.RequestHandler):
          # Check if the GUID is still in the cache after deletion
         cached_data = await self.application.redis.get(guid)
         if cached_data is not None:
-            raise tornado.web.HTTPError(404, "GUID not found or expired")
+            raise tornado.web.HTTPError(404, "GUID expired or Not found")
 
         # Respond with a success message
         self.set_status(200)
@@ -185,7 +213,8 @@ class GUIDHandler(tornado.web.RequestHandler):
 
         return guid_str
 
+# This block is the entry point for running the server application.
 if __name__ == "__main__":
     app = Application()
-    app.listen(8809)
+    app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
