@@ -15,7 +15,8 @@ Design and implement a RESTful web API that can be used to maintain a database o
 ## How to run the code
 
 - Enter Virtual Environment (use python version 3.8.6)
-  python3.8 -m venv venv38 source venv38/bin/ activate
+  1. python3.8 -m venv venv38
+  2. source venv38/bin/ activate
 - Start the redis server:
   run command redis-server in one terminal
 - Open another terminal
