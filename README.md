@@ -10,7 +10,6 @@ Design and implement a RESTful web API that can be used to maintain a database o
 - brew services start redis
 - brew services start mongodb-community
 - brew services start redis
-- pip install -r requirements.txt
 
 ## How to run the code
 
@@ -19,12 +18,14 @@ Design and implement a RESTful web API that can be used to maintain a database o
   2. source venv38/bin/ activate
 - Start the redis server:
   run command redis-server in one terminal
-- Open another terminal
+- Open another terminal: 
   run the command redis-cli to see the connection, to terminate that use Control+C in Mac
-- Then run the python script
+- Install all the requirements in the virtual environment: 
+  pip install -r requirements.txt
+- Then run the python script:
   python3 guid_api.py
 - Either use curl commands or any URL testing tool(Postman) to test the communication of the api
-- Run the test class
+- Run the test class:
   coverage run -m unittest discover
 
 ## Testing
